@@ -10,6 +10,7 @@ body {
   font: 11px sans-serif;
   width:1200px;
   margin:100px auto;
+
 }
 
 .axis path,
@@ -49,19 +50,19 @@ var margin = {top: 20, right: 20, bottom: 30, left: 40},
  */ 
 
 // setup x 
-var xValue = function(d) { return d.amount;}, // data -> value
+var xValue = function(d) { return d.Amount;}, // data -> value
     xScale = d3.scale.linear().range([0, width]), // value -> display
     xMap = function(d) { return xScale(xValue(d));}, // data -> display
     xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
 // setup y
-var yValue = function(d) { return d.number;}, // data -> value
+var yValue = function(d) { return d["difference"];}, // data -> value
     yScale = d3.scale.linear().range([height, 0]), // value -> display
     yMap = function(d) { return yScale(yValue(d));}, // data -> display
     yAxis = d3.svg.axis().scale(yScale).orient("left");
 
 // setup fill color
-var cValue = function(d) { return d.fda;},
+var cValue = function(d) { return d.Drug;},
     color = d3.scale.category10();
 
 // add the graph canvas to the body of the webpage
@@ -77,12 +78,12 @@ var tooltip = d3.select("body").append("div")
     .style("opacity", 0);
 
 // load data
-d3.csv("fda_or_not.csv", function(error, data) {
+d3.csv("fda_approved_days.csv", function(error, data) {
 
   // change string (from CSV) into number format
   data.forEach(function(d) {
-    d.amount = +d.amount;
-    d.number = +d.number;
+    d.Amount = +d.Amount;
+    d["difference"] = +d["difference"];
 //    console.log(d);
   });
 
@@ -93,30 +94,29 @@ d3.csv("fda_or_not.csv", function(error, data) {
   // x-axis
   svg.append("g")
       .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
+      .attr("transform", "translate(0," + (30+height/2) + ")")
       .call(xAxis)
     .append("text")
       .attr("class", "label")
       .attr("x", width)
-      .attr("y", -10)
+      .attr("y", -6)
       .style("text-anchor", "end")
       .attr("font-size", "20px")
-      .text("$$$ received in Million");
+      .text("$$$ received");
 
   // y-axis
   svg.append("g")
       .attr("class", "y axis")
-      .attr("transform", "translate(79,0)")
       .call(yAxis)
       .append("text")
       .attr("class", "label")
-      .attr("x",220)
+      .attr("x",380)
       //.attr("transform", "rotate(-90)")
-      .attr("y", 10)
+      .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       .attr("font-size", "20px")
-      .text("frequency of payments");
+      .text("Days of FDA approval since first funding");
 
   // draw dots
   svg.selectAll(".dot")
@@ -131,7 +131,7 @@ d3.csv("fda_or_not.csv", function(error, data) {
           tooltip.transition()
                .duration(200)
                .style("opacity", .9);
-          tooltip.html(d["drug"] + "<br/> (" + xValue(d) 
+          tooltip.html(d["Drug"] + "<br/> (" + xValue(d) 
 	        + ", " + yValue(d) + ")")
                .style("left", (d3.event.pageX + 5) + "px")
                .style("top", (d3.event.pageY - 28) + "px");
@@ -141,25 +141,6 @@ d3.csv("fda_or_not.csv", function(error, data) {
                .duration(500)
                .style("opacity", 0);
       });
-
-      var legend = svg.selectAll(".legend")
-      .data(color.domain())
-    .enter().append("g")
-      .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-
-  legend.append("rect")
-      .attr("x", width - 18)
-      .attr("width", 18)
-      .attr("height", 18)
-      .style("fill", color);
-
-  legend.append("text")
-      .attr("x", width - 24)
-      .attr("y", 9)
-      .attr("dy", ".35em")
-      .style("text-anchor", "end")
-      .text(function(d) { return d; });
 
  
 });
