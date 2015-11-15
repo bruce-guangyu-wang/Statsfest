@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body{
+	width:1200px;
+	margin:100px auto;
+}
+svg text{
+	font-size:12px;
+}
+rect{
+	shape-rendering:crispEdges;
+}
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="biPartite.js"></script>
+<script>
+var sales_data=[
+['Mount Sinai','Astrazeneca Pharmaceuticals',5727926],
+['Mount Sinai','Incyte',5172595],
+['Memorial For Cancer And All','Janssen Research & Development',2557024],
+['Memorial For Cancer And All','Incyte',1478058],
+['Memorial For Cancer And All','Millennium Pharmaceuticals',1321205],
+['Mount Sinai','Sanofi And Genzyme Us Companies',1120493],
+['Strong Memorial','Sanofi And Genzyme Us Companies',1033744],
+['Memorial For Cancer And All','Bayer Healthcare',850050],
+['Strong Memorial','Seattle Genetics',822925],
+['Rochester General','Pfizer',758245],
+['Winthrop University','Incyte',595943],
+['New York Presbyterian','Sanofi And Genzyme Us Companies',550092],
+['Montefiore Medical Center','Incyte',534849],
+['New York Presbyterian','Alexion Pharmaceuticals',499663],
+['Winthrop University','Edwards Lifesciences',450000],
+['Strong Memorial','Regeneron Pharmaceuticals',448875],
+['Hospital For Special Surgery','Stryker',440991],
+['Roswell Park Cancer Institute','Bristol-Myers Squibb Company',430044],
+['Mount Sinai','Janssen Research & Development',376881],
+['Strong Memorial','Genentech',375723],
+['Strong Memorial','Pfizer',372299],
+['Strong Memorial','Zoll Services (A/K/A Zoll Lifecor Corp)',370714],
+['Memorial For Cancer And All','Eisai',326838],
+['Roswell Park Cancer Institute','Millennium Pharmaceuticals',298107],
+['Mount Sinai','Cardiovascular Systems',295816],
+['Beth Israel Medical Center','Pfizer',293003],
+['Beth Israel Medical Center','Amgen',286685],
+['Rochester General','Sanofi Pasteur',279920],
+['Roswell Park Cancer Institute','Pfizer',260267],
+['Roswell Park Cancer Institute','Celgene',224309],
+['Strong Memorial','Biogen Idec',200232],
+['Strong Memorial','Millennium Pharmaceuticals',183724],
+['Strong Memorial','Merck Sharp & Dohme',182789],
+['Winthrop University','Sanofi And Genzyme Us Companies',165734],
+['Montefiore Medical Center','Merck Sharp & Dohme',165528],
+['Roswell Park Cancer Institute','Astrazeneca Pharmaceuticals',161804],
+['Montefiore Medical Center','Sorin Group Usa',159976],
+['Hospital For Special Surgery','Genentech',154214],
+['New York Presbyterian','Novadaq Technologies',152120],
+['New York Presbyterian','Plexxikon',143319],
+['Memorial For Cancer And All','Sysmex America',143300],
+['Roswell Park Cancer Institute','Janssen Research & Development',141552],
+['Montefiore Medical Center','Eli Lilly And Company',138349],
+['Montefiore Medical Center','Bristol-Myers Squibb Company',136827],
+['Memorial For Cancer And All','Plexxikon',131374],
+['Memorial For Cancer And All','Pfizer',122751],
+['Mount Sinai','Celgene',118046],
+['Mount Sinai','Dyax Corp',117310],
+['Winthrop University','Bristol-Myers Squibb Company',108461],
+['Strong Memorial','Medtronic Vascular',98465],
+['Winthrop University','Pfizer',95166],
+['Montefiore Medical Center','Novartis Pharma Ag',92523],
+['Beth Israel Medical Center','Bristol-Myers Squibb Company',91216],
+['Mount Sinai','Bayer Healthcare',91161],
+['Rochester General','Amgen',88408],
+['Strong Memorial','Novartis Pharmaceuticals',83573],
+['Strong Memorial','Celgene',79624],
+['Montefiore Medical Center','Forest Laboratories',78514],
+['Montefiore Medical Center','Genentech',77762],
+['Beth Israel Medical Center','Forest Laboratories',73591],
+['Beth Israel Medical Center','Novadaq Technologies',73000],
+['Roswell Park Cancer Institute','Plexxikon',72539],
+['Winthrop University','Dyax Corp',72259],
+['Rochester General','Boston Scientific',70453],
+['Montefiore Medical Center','Janssen Research & Development',63316],
+['Montefiore Medical Center','Eisai',60510],
+['Mount Sinai','Edwards Lifesciences',59380],
+['Strong Memorial','Astrazeneca Pharmaceuticals',56611],
+['Mount Sinai','Philips Electronics North America',50000],
+['Winthrop University','Genentech',48864],
+['Strong Memorial','Sanofi Pasteur',47913],
+['Beth Israel Medical Center','Genentech',41813],
+['Montefiore Medical Center','Celgene',40973],
+['Strong Memorial','Amgen',40328],
+['Winthrop University','Janssen Research & Development',37045],
+['Winthrop University','Merck Sharp & Dohme',35088],
+['Roswell Park Cancer Institute','Merck Sharp & Dohme',33754],
+['Beth Israel Medical Center','Eli Lilly And Company',33647],
+['Winthrop University','Amgen',30329],
+['Hospital For Special Surgery','Pfizer',28290],
+['New York Presbyterian','Cardiovascular Systems',25416],
+['Winthrop University','Astrazeneca Pharmaceuticals',25085],
+['Montefiore Medical Center','Novartis Pharmaceuticals',24878],
+['Winthrop University','Biogen Idec',22418],
+['Rochester General','Eli Lilly And Company',21583],
+['Strong Memorial','Eli Lilly And Company',21281],
+['Montefiore Medical Center','Regeneron Pharmaceuticals',20000],
+['Beth Israel Medical Center','Astrazeneca Pharmaceuticals',18989],
+['Beth Israel Medical Center','Celgene',18356],
+['Hospital For Special Surgery','Bristol-Myers Squibb Company',17628],
+['Rochester General','Sorin Group Usa',17042],
+['Beth Israel Medical Center','Boston Scientific',12881],
+['Mount Sinai','Millennium Pharmaceuticals',12787],
+['Hospital For Special Surgery','Eli Lilly And Company',12164],
+['Strong Memorial','Novartis Pharma Ag',11867],
+['Rochester General','Celgene',11050],
+['Hospital For Special Surgery','Astrazeneca Pharmaceuticals',11032]
+];
+
+var width = 1100, height = 610, margin ={b:0, t:40, l:170, r:50};
+
+var svg = d3.select("body")
+	.append("svg").attr('width',width).attr('height',(height+margin.b+margin.t))
+	.append("g").attr("transform","translate("+ margin.l+","+margin.t+")");
+
+var data = [ 
+	{data:bP.partData(sales_data,2), id:'SalesAttempts', header:["Hospital","Company", "University Company Payment"]}
+];
+
+bP.draw(data, svg);
+
+</script>
+</body>
